@@ -1,0 +1,47 @@
+﻿@page
+@model Example1Model
+@{
+    ViewData["Title"] = "Example1";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p></p>
+
+@section Scripts
+{
+    <script>
+        window.setTimeout(function () { //emulate slow loading so we can see SEO version
+            var seoElement = document.getElementById('seo-preview');
+            seoElement.style = 'display: none';
+
+            var widgetElement = document.getElementById('actual-widget');
+            widgetElement.style = '';
+
+            (function (a, b, c, d, e, f, g) {
+                for (var h, i = /[?&]{1}(humany[^=]*)=([^&#]*)/g; h = i.exec(a.location.search);)c += (-1 < c.indexOf("?") ? "&" : "?") + h[1] + "=" + h[2];
+                f = b.createElement(e), f.async = !0, f.src = c, g = b.getElementsByTagName(e)[0], g.parentNode.insertBefore(f, g), a[d] = a[d] || {
+                    _c: [],
+                    configure: function () { a[d]._c.push(arguments) }
+                }; var j = d.toLowerCase(); a[j] = a[j] || { _c: [], configure: function () { a[j]._c.push(arguments) } }
+            })(window, document, "//@(Model.WidgetConfig.HumanyTenantDomain)/@Model.WidgetConfig.Implementation/embed.js", "Humany", "script");
+
+            window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '/Help/' }) });
+
+        }, 1000);
+        </script>
+}
+
+@section Head
+{
+    <link href="//@(Model.WidgetConfig.HumanyTenantDomain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="//@(Model.WidgetConfig.HumanyTenantDomain)/@Model.WidgetConfig.Implementation/widgets.css">
+}
+
+<div id="actual-widget" style="display: none">
+    <a href="//@(Model.WidgetConfig.HumanyTenantDomain)/@(Model.WidgetConfig.Interface)">...</a>
+</div>
+
+<div id="seo-preview" style=@Model.SeoPage?.Css>
+    <p>THIS IS SEO @(Model.SeoPage?.Error?.Code == null ? "" : "" + Model.SeoPage.Error.Code + ": " + Model.SeoPage.Error.Message)</p>
+    @Html.Raw(Model.SeoPage?.Html)
+</div>

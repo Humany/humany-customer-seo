@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - humany_customer_seo_netcore</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    @RenderSection("Head", required: false)
 </head>
 <body>
     <header>
@@ -22,7 +23,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Example1">Example1</a>
                         </li>
                     </ul>
                 </div>
@@ -37,7 +38,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2019 - humany_customer_seo_netcore - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2019 - humany_customer_seo_netcore
         </div>
     </footer>
 

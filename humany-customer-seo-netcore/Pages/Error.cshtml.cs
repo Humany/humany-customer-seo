@@ -12,7 +12,7 @@ namespace humany_customer_seo_netcore.Pages
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	public class ErrorModel : PageModel
 	{
-		public string RequestId { get; set; }
+		public string RequestId { get; set; } = string.Empty; //Needs initialization when Nullable
 
 		public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
