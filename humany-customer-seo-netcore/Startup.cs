@@ -24,6 +24,8 @@ namespace humany_customer_seo_netcore
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRazorPages();
+
+			services.AddSingleton<ISeoService, SeoService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
