@@ -1,7 +1,12 @@
-﻿@page
+﻿@page "{*path}"
 @model Example1Model
+@inject ISeoService seoService
 @{
-    ViewData["Title"] = "Example1";
+    ViewData["Title"] = "No result";
+    var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues["page"].ToString());
+    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.Interface, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
+    if (seoPage != null)
+        ViewData["Title"] = seoPage.Headers.GetValueOrDefault("HumanyTitle", "N/A");
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -23,25 +28,37 @@
                     _c: [],
                     configure: function () { a[d]._c.push(arguments) }
                 }; var j = d.toLowerCase(); a[j] = a[j] || { _c: [], configure: function () { a[j]._c.push(arguments) } }
-            })(window, document, "//@(Model.WidgetConfig.HumanyTenantDomain)/@Model.WidgetConfig.Implementation/embed.js", "Humany", "script");
+            })(window, document, "//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/embed.js", "Humany", "script");
 
-            window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '/Help/' }) });
+            window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '@widgetConfig.BasePath' }) });
 
         }, 1000);
-        </script>
+    </script>
 }
 
 @section Head
 {
-    <link href="//@(Model.WidgetConfig.HumanyTenantDomain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="//@(Model.WidgetConfig.HumanyTenantDomain)/@Model.WidgetConfig.Implementation/widgets.css">
+    <link href="//@(widgetConfig.HumanyTenantDomain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    @*<link rel="stylesheet" type="text/css" href="//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/widgets.css">*@
+    @{
+        if (!string.IsNullOrEmpty(seoPage?.CssHref))
+        {
+            <link rel="stylesheet" type="text/css" href="@seoPage?.CssHref" />
+        }
+        if (!string.IsNullOrEmpty(seoPage?.CssContent))
+        {
+            <style id="seo-style">
+                @seoPage?.CssContent
+            </style>
+        }
+    }
 }
 
 <div id="actual-widget" style="display: none">
-    <a href="//@(Model.WidgetConfig.HumanyTenantDomain)/@(Model.WidgetConfig.Interface)">...</a>
+    <a href="//@(widgetConfig.HumanyTenantDomain)/@(widgetConfig.Interface)">...</a>
 </div>
 
-<div id="seo-preview" style=@Model.SeoPage?.Css>
-    <p>THIS IS SEO @(Model.SeoPage?.Error?.Code == null ? "" : "" + Model.SeoPage.Error.Code + ": " + Model.SeoPage.Error.Message)</p>
-    @Html.Raw(Model.SeoPage?.Html)
+<div id="seo-preview">
+    <p>THIS IS SEO @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
+    @Html.Raw(seoPage?.Html)
 </div>

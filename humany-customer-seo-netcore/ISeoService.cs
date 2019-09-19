@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace humany_customer_seo_netcore
 {
-
 	public class PagesResult
 	{
 		public List<PageResult> Pages { get; set; } = new List<PageResult>();
@@ -31,7 +30,8 @@ namespace humany_customer_seo_netcore
 
 		public string Html { get; set; } = string.Empty;
 
-		public string Css { get; set; } = string.Empty;
+		public string CssHref { get; set; } = string.Empty;
+		public string CssContent { get; set; } = string.Empty;
 
 		public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
 	}
@@ -48,7 +48,7 @@ namespace humany_customer_seo_netcore
 			var seoHost = "https://seo.humany.cc";
 			using (var client = new HttpClient())
 			{
-				var seoUrl = $"{seoHost}/deliver/{tenant}/{widget}/{path}";
+				var seoUrl = $"{seoHost}/v1/{tenant}/{widget}/{path}";
 				var response = await client.GetAsync(seoUrl);
 				if (!response.IsSuccessStatusCode)
 				{
@@ -61,7 +61,14 @@ namespace humany_customer_seo_netcore
 					.ToDictionary(o => o.Id, o => o.Value);
 				if (!matches.ContainsKey("HTML"))
 					return null;
-				return new PageResult { Html = matches["HTML"], Css = matches["CSS"] };
+
+				var pageResult = new PageResult { Html = matches["HTML"], CssContent = matches["CSS"] };
+
+				pageResult.Headers = response.Headers.Where(k => k.Key.StartsWith("Humany"))
+					.ToDictionary(k => k.Key, k => System.Net.WebUtility.UrlDecode(k.Value.FirstOrDefault() ?? ""));
+				pageResult.CssHref = "" + pageResult.Headers.GetValueOrDefault("HumanyCssHref", "");
+
+				return pageResult;
 			}
 		}
 	}
