@@ -16,11 +16,17 @@
 {
     <script>
         window.setTimeout(function () { //emulate slow loading so we can see SEO version
+
+            //TODO: should be handled by widget:
             var seoElement = document.getElementById('seo-preview');
             seoElement.style = 'display: none';
 
+            var seoStyleElement = document.getElementById('seo-style');
+            if (seoStyleElement) { seoStyleElement.parentElement.removeChild(seoStyleElement); }
+
             var widgetElement = document.getElementById('actual-widget');
             widgetElement.style = '';
+
 
             (function (a, b, c, d, e, f, g) {
                 for (var h, i = /[?&]{1}(humany[^=]*)=([^&#]*)/g; h = i.exec(a.location.search);)c += (-1 < c.indexOf("?") ? "&" : "?") + h[1] + "=" + h[2];
@@ -30,6 +36,7 @@
                 }; var j = d.toLowerCase(); a[j] = a[j] || { _c: [], configure: function () { a[j]._c.push(arguments) } }
             })(window, document, "//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/embed.js", "Humany", "script");
 
+            //TODO: should be handled by widget:
             window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '@widgetConfig.BasePath' }) });
 
         }, 1000);
@@ -39,7 +46,7 @@
 @section Head
 {
     <link href="//@(widgetConfig.HumanyTenantDomain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    @*<link rel="stylesheet" type="text/css" href="//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/widgets.css">*@
+    <link rel="stylesheet" type="text/css" href="//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/widgets.css">
     @{
         if (!string.IsNullOrEmpty(seoPage?.CssHref))
         {
