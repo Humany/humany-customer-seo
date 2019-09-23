@@ -22,7 +22,6 @@ namespace humany_customer_seo_netcore
 	public class SeoPage
 	{
 		public string Html { get; set; } = string.Empty;
-		public string CssContent { get; set; } = string.Empty;
 		public string CssHref { get; set; } = string.Empty;
 		public string Title { get; set; } = string.Empty;
 		public string CanonicalUrl { get; set; } = string.Empty;
@@ -74,7 +73,6 @@ namespace humany_customer_seo_netcore
 				var result = new SeoPage
 				{
 					Html = matches["HTML"],
-					CssContent = matches["CSS"],
 					CssHref = headers.GetValueOrDefault("HumanyCssHref", "") ?? "",
 					CanonicalUrl = headers.GetValueOrDefault("HumanyCanonicalUrl", "") ?? "",
 					ContentModifiedOn = headers.GetValueOrDefault("HumanyContentModifiedOn", "") ?? "",
