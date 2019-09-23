@@ -50,7 +50,7 @@
     <a href="//@(domain)/@(widgetConfig.WidgetUriName)">...</a>
 </div>
 
-<div id="widget_@(widgetConfig.WidgetUriName)">
+<div id="humany_@(widgetConfig.WidgetUriName)">
     <p style="position: absolute;z-index: 2;color: red;right: 50%;">This is SEO version @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
     @Html.Raw(seoPage?.Html)
 </div>
