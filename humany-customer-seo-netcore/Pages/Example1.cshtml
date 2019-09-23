@@ -8,7 +8,7 @@
     var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
     var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
     if (seoPage != null)
-        ViewData["Title"] = seoPage.Title ?? "N/A";
+        ViewData["Title"] = seoPage.PageTitle ?? "N/A";
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -17,8 +17,9 @@
 @section Scripts
 {
     <script>
-        window.setTimeout(function () { //emulate slow loading so we can see SEO version
+        window.setTimeout(function () { //emulate slow loading so we have a chance to see SEO version
 
+            //Standard loader script:
             (function (a, b, c, d, e, f, g) {
                 for (var h, i = /[?&]{1}(humany[^=]*)=([^&#]*)/g; h = i.exec(a.location.search);)c += (-1 < c.indexOf("?") ? "&" : "?") + h[1] + "=" + h[2];
                 f = b.createElement(e), f.async = !0, f.src = c, g = b.getElementsByTagName(e)[0], g.parentNode.insertBefore(f, g), a[d] = a[d] || {

@@ -23,7 +23,7 @@ namespace humany_customer_seo_netcore
 	{
 		public string Html { get; set; } = string.Empty;
 		public string CssHref { get; set; } = string.Empty;
-		public string Title { get; set; } = string.Empty;
+		public string PageTitle { get; set; } = string.Empty;
 		public string CanonicalUrl { get; set; } = string.Empty;
 		public string ContentRenderedOn { get; set; } = string.Empty;
 		public string ContentModifiedOn { get; set; } = string.Empty;
@@ -77,7 +77,7 @@ namespace humany_customer_seo_netcore
 					CanonicalUrl = headers.GetValueOrDefault("HumanyCanonicalUrl", "") ?? "",
 					ContentModifiedOn = headers.GetValueOrDefault("HumanyContentModifiedOn", "") ?? "",
 					ContentRenderedOn = headers.GetValueOrDefault("HumanyContentRenderedOn", "") ?? "",
-					Title = headers.GetValueOrDefault("HumanyTitle", "") ?? "",
+					PageTitle = headers.GetValueOrDefault("HumanyPageTitle", "") ?? "",
 				};
 
 				return result;
