@@ -1,10 +1,12 @@
 ﻿@page "{*path}"
 @model Example1Model
 @inject ISeoService seoService
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> options
 @{
     ViewData["Title"] = "No result";
     var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
-    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.Interface, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
+    var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
+    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
     if (seoPage != null)
         ViewData["Title"] = seoPage.Title ?? "N/A";
 }
@@ -17,26 +19,15 @@
     <script>
         window.setTimeout(function () { //emulate slow loading so we can see SEO version
 
-            //TODO: should be handled by widget:
-            var seoElement = document.getElementById('seo-preview');
-            seoElement.style = 'display: none';
-
-            var seoStyleElement = document.getElementById('seo-style');
-            if (seoStyleElement) { seoStyleElement.parentElement.removeChild(seoStyleElement); }
-
-            var widgetElement = document.getElementById('actual-widget');
-            widgetElement.style = '';
-
-
             (function (a, b, c, d, e, f, g) {
                 for (var h, i = /[?&]{1}(humany[^=]*)=([^&#]*)/g; h = i.exec(a.location.search);)c += (-1 < c.indexOf("?") ? "&" : "?") + h[1] + "=" + h[2];
                 f = b.createElement(e), f.async = !0, f.src = c, g = b.getElementsByTagName(e)[0], g.parentNode.insertBefore(f, g), a[d] = a[d] || {
                     _c: [],
                     configure: function () { a[d]._c.push(arguments) }
                 }; var j = d.toLowerCase(); a[j] = a[j] || { _c: [], configure: function () { a[j]._c.push(arguments) } }
-            })(window, document, "//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/embed.js", "Humany", "script");
+            })(window, document, "//@(domain)/@widgetConfig.Implementation/embed.js", "Humany", "script");
 
-            //TODO: should be handled by widget:
+            //configure widget routing mode:
             window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '@widgetConfig.BasePath' }) });
 
         }, 1000);
@@ -45,27 +36,21 @@
 
 @section Head
 {
-    <link href="//@(widgetConfig.HumanyTenantDomain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="//@(widgetConfig.HumanyTenantDomain)/@widgetConfig.Implementation/widgets.css">
+    <link href="//@(domain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="//@(domain)/@widgetConfig.Implementation/widgets.css">
     @{
         if (!string.IsNullOrEmpty(seoPage?.CssHref))
         {
             <link rel="stylesheet" type="text/css" href="@seoPage?.CssHref" />
         }
-        if (!string.IsNullOrEmpty(seoPage?.CssContent))
-        {
-            <style id="seo-style">
-                @seoPage?.CssContent
-            </style>
-        }
     }
 }
 
-<div id="actual-widget" style="display: none">
-    <a href="//@(widgetConfig.HumanyTenantDomain)/@(widgetConfig.Interface)">...</a>
+<div id="actual-widget" style="display: block">
+    <a href="//@(domain)/@(widgetConfig.WidgetUriName)">...</a>
 </div>
 
-<div id="seo-preview">
-    <p>THIS IS SEO @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
+<div id="widget_@(widgetConfig.WidgetUriName)">
+    <p style="position: absolute;z-index: 2;color: red;right: 50%;">This is SEO version @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
     @Html.Raw(seoPage?.Html)
 </div>
