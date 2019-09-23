@@ -24,6 +24,8 @@ namespace humany_customer_seo_netcore
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRazorPages();
+			services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
+			services.AddOptions();
 
 			services.AddSingleton<ISeoService, SeoService>();
 		}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -7,52 +8,57 @@ using System.Threading.Tasks;
 
 namespace humany_customer_seo_netcore
 {
-	public class PagesResult
+	public interface ISeoService
 	{
-		public List<PageResult> Pages { get; set; } = new List<PageResult>();
+		Task<SeoPage> Get(string tenant, string widgetUriName, string pathAndQuery);
 	}
 
-	public class HttpError
+	public class Error
 	{
 		public int Code { get; set; }
 		public string Message { get; set; } = string.Empty;
 	}
 
-	public class PageResult
+	public class SeoPage
 	{
-		public string Uri { get; set; } = string.Empty; // original url
-
-		public string CanonicalUrl { get; set; } = string.Empty;
-
-		public List<string> InternalLinks { get; set; } = new List<string>();
-
-		public HttpError? Error { get; set; }
-
 		public string Html { get; set; } = string.Empty;
-
-		public string CssHref { get; set; } = string.Empty;
 		public string CssContent { get; set; } = string.Empty;
+		public string CssHref { get; set; } = string.Empty;
+		public string Title { get; set; } = string.Empty;
+		public string CanonicalUrl { get; set; } = string.Empty;
+		public string ContentRenderedOn { get; set; } = string.Empty;
+		public string ContentModifiedOn { get; set; } = string.Empty;
 
-		public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
-	}
-
-	public interface ISeoService
-	{
-		Task<PageResult?> Get(string tenant, string widget, string path);
+		public Error? Error { get; set; }
 	}
 
 	public class SeoService : ISeoService
 	{
-		public async Task<PageResult?> Get(string tenant, string widget, string path)
+		private readonly IOptions<AppSettings> options;
+
+		public SeoService(IOptions<AppSettings> options)
 		{
-			var seoHost = "https://seo.humany.cc";
+			this.options = options;
+		}
+		public async Task<SeoPage> Get(string tenant, string widgetUriName, string pathAndQuery)
+		{
+			var seoHost = options.Value.SeoBaseUrl;
 			using (var client = new HttpClient())
 			{
-				var seoUrl = $"{seoHost}/v1/{tenant}/{widget}/{path}";
-				var response = await client.GetAsync(seoUrl);
-				if (!response.IsSuccessStatusCode)
+				var seoUrl = $"{seoHost}/v1/{tenant}/{widgetUriName}/{pathAndQuery}";
+				HttpResponseMessage response;
+				try
 				{
-					return new PageResult { Error = new HttpError { Code = (int)response.StatusCode, Message = response.ReasonPhrase } };
+					response = await client.GetAsync(seoUrl);
+					if (!response.IsSuccessStatusCode)
+					{
+						return new SeoPage { Error = new Error { Code = (int)response.StatusCode, Message = response.ReasonPhrase } };
+					}
+				}
+				catch (Exception ex)
+				{
+					//Not a HttpError, but return it like this for convenience at call site...
+					return new SeoPage { Error = new Error { Code = ex.HResult, Message = ex.Message } };
 				}
 
 				var content = await response.Content.ReadAsStringAsync();
@@ -60,15 +66,23 @@ namespace humany_customer_seo_netcore
 				var matches = rx.Matches(content).Select(m => new { Id = m.Groups["type"].Value, Value = m.Groups["content"].Value })
 					.ToDictionary(o => o.Id, o => o.Value);
 				if (!matches.ContainsKey("HTML"))
-					return null;
+					return new SeoPage { Error = new Error { Code = 502, Message = "HTML segment missing" } };
 
-				var pageResult = new PageResult { Html = matches["HTML"], CssContent = matches["CSS"] };
+				var headers = response.Headers.Where(k => k.Key.StartsWith("Humany"))
+					.ToDictionary(k => k.Key, k => System.Net.WebUtility.UrlDecode(k.Value.First()));
 
-				pageResult.Headers = response.Headers.Where(k => k.Key.StartsWith("Humany"))
-					.ToDictionary(k => k.Key, k => System.Net.WebUtility.UrlDecode(k.Value.FirstOrDefault() ?? ""));
-				pageResult.CssHref = "" + pageResult.Headers.GetValueOrDefault("HumanyCssHref", "");
+				var result = new SeoPage
+				{
+					Html = matches["HTML"],
+					CssContent = matches["CSS"],
+					CssHref = headers.GetValueOrDefault("HumanyCssHref", "") ?? "",
+					CanonicalUrl = headers.GetValueOrDefault("HumanyCanonicalUrl", "") ?? "",
+					ContentModifiedOn = headers.GetValueOrDefault("HumanyContentModifiedOn", "") ?? "",
+					ContentRenderedOn = headers.GetValueOrDefault("HumanyContentRenderedOn", "") ?? "",
+					Title = headers.GetValueOrDefault("HumanyTitle", "") ?? "",
+				};
 
-				return pageResult;
+				return result;
 			}
 		}
 	}

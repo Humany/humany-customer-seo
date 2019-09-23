@@ -6,7 +6,7 @@
     var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
     var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.Interface, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
     if (seoPage != null)
-        ViewData["Title"] = seoPage.Headers.GetValueOrDefault("HumanyTitle", "N/A");
+        ViewData["Title"] = seoPage.Title ?? "N/A";
 }
 <h1>@ViewData["Title"]</h1>
 
