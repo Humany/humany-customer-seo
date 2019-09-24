@@ -28,7 +28,7 @@ namespace humany_customer_seo_netcore
 		public string ContentRenderedOn { get; set; } = string.Empty;
 		public string ContentModifiedOn { get; set; } = string.Empty;
 
-		public Error? Error { get; set; }
+		public Error Error { get; set; }
 	}
 
 	public class SeoService : ISeoService
