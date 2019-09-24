@@ -5,10 +5,6 @@
     <RootNamespace>humany_customer_seo_netcore</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
   <ItemGroup>
   </ItemGroup>
 
