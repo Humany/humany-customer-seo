@@ -57,22 +57,16 @@ namespace humany_customer_seo_netcore
 				catch (Exception ex)
 				{
 					//Not a HttpError, but return it like this for convenience at call site...
-					return new SeoPage { Error = new Error { Code = ex.HResult, Message = ex.Message } };
+					return new SeoPage { Error = new Error { Code = 599, Message = ex.Message } };
 				}
 
 				var content = await response.Content.ReadAsStringAsync();
-				var rx = new Regex(@"<!-- BEGIN (?<type>\w+) -->(?<content>.+?)<!-- END \w+ -->", RegexOptions.Singleline);
-				var matches = rx.Matches(content).Select(m => new { Id = m.Groups["type"].Value, Value = m.Groups["content"].Value })
-					.ToDictionary(o => o.Id, o => o.Value);
-				if (!matches.ContainsKey("HTML"))
-					return new SeoPage { Error = new Error { Code = 502, Message = "HTML segment missing" } };
-
 				var headers = response.Headers.Where(k => k.Key.StartsWith("Humany"))
 					.ToDictionary(k => k.Key, k => System.Net.WebUtility.UrlDecode(k.Value.First()));
 
 				var result = new SeoPage
 				{
-					Html = matches["HTML"],
+					Html = content,
 					CssHref = headers.GetValueOrDefault("HumanyCssHref", "") ?? "",
 					CanonicalUrl = headers.GetValueOrDefault("HumanyCanonicalUrl", "") ?? "",
 					ContentModifiedOn = headers.GetValueOrDefault("HumanyContentModifiedOn", "") ?? "",
