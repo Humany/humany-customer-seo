@@ -6,7 +6,7 @@
     ViewData["Title"] = "No result";
     var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
     var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
-    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, Request.Path));
+    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, HttpContext.Request.Path.Value + HttpContext.Request.QueryString), widgetConfig.BasePath);
     if (seoPage != null)
         ViewData["Title"] = seoPage.PageTitle ?? "N/A";
 }
@@ -38,7 +38,6 @@
 @section Head
 {
     <link href="//@(domain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="//@(domain)/@widgetConfig.Implementation/widgets.css">
     @{
         if (!string.IsNullOrEmpty(seoPage?.CssHref))
         {
@@ -47,7 +46,7 @@
     }
 }
 
-<div id="humany_@(widgetConfig.WidgetUriName)">
+<div id="humany_@(widgetConfig.WidgetUriName)" data-base-path="@(widgetConfig.BasePath)">
     <p style="position: absolute;z-index: 2;color: red;right: 50%;">This is SEO version @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
     @Html.Raw(seoPage?.Html)
 </div>
