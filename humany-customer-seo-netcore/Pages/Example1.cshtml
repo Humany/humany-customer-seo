@@ -1,5 +1,4 @@
 ﻿@page "{*path}"
-@model Example1Model
 @inject ISeoService seoService
 @inject Microsoft.Extensions.Options.IOptions<AppSettings> options
 @{
@@ -11,8 +10,6 @@
         ViewData["Title"] = seoPage.PageTitle ?? "N/A";
 }
 <h1>@ViewData["Title"]</h1>
-
-<p>Hello world!</p>
 
 @section Scripts
 {

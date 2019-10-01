@@ -1,0 +1,53 @@
+﻿@page "{*path}"
+@inject ISeoService seoService
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> options
+@{
+    ViewData["Title"] = "No result";
+    var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
+    var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
+    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, HttpContext.Request.Path.Value + HttpContext.Request.QueryString), widgetConfig.BasePath);
+    if (seoPage != null)
+        ViewData["Title"] = seoPage.PageTitle ?? "N/A";
+}
+<h1>@ViewData["Title"]</h1>
+
+@section Scripts
+{
+    <script>
+        window.setTimeout(function () { //emulate slow loading so we have a chance to see SEO version
+
+            //Standard loader script:
+            (function (a, b, c, d, e, f, g) {
+                for (var h, i = /[?&]{1}(humany[^=]*)=([^&#]*)/g; h = i.exec(a.location.search);)c += (-1 < c.indexOf("?") ? "&" : "?") + h[1] + "=" + h[2];
+                f = b.createElement(e), f.async = !0, f.src = c, g = b.getElementsByTagName(e)[0], g.parentNode.insertBefore(f, g), a[d] = a[d] || {
+                    _c: [],
+                    configure: function () { a[d]._c.push(arguments) }
+                }; var j = d.toLowerCase(); a[j] = a[j] || { _c: [], configure: function () { a[j]._c.push(arguments) } }
+            })(window, document, "//@(domain)/@widgetConfig.Implementation/embed.js", "Humany", "script");
+
+            //configure widget routing mode:
+            window.humany.configure((config) => { config({ type: '@@humany/inline-widget' }).routing({ mode: 'browser', basePath: '@widgetConfig.BasePath' }) });
+
+        }, 1000);
+    </script>
+}
+
+@section Head
+{
+    <link href="//@(domain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    @{
+        if (!string.IsNullOrEmpty(seoPage?.CssHref))
+        {
+            <link rel="stylesheet" type="text/css" href="@seoPage?.CssHref" />
+        }
+    }
+}
+
+<div id="humany_@(widgetConfig.WidgetUriName)" data-base-path="@(widgetConfig.BasePath)">
+    <p style="position: absolute;z-index: 2;color: red;right: 50%;">This is SEO version @(seoPage?.Error?.Code == null ? "" : "" + seoPage.Error.Code + ": " + seoPage.Error.Message)</p>
+    @Html.Raw(seoPage?.Html)
+</div>
+
+<a href="//seo-customer.humany.cc/inline-contact-v4">Contact</a>
+<a href="//seo-customer.humany.cc/bot-v4">Bot</a>
+<a href="//seo-customer.humany.cc/floating-v4">Floating</a>
