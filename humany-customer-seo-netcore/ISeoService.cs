@@ -5,12 +5,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace humany_customer_seo_netcore
 {
 	public interface ISeoService
 	{
-		Task<SeoPage> Get(string tenant, string widgetUriName, string pathAndQuery);
+		Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl);
 	}
 
 	public class Error
@@ -39,16 +40,20 @@ namespace humany_customer_seo_netcore
 		{
 			this.options = options;
 		}
-		public async Task<SeoPage> Get(string tenant, string widgetUriName, string pathAndQuery)
+		public async Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl)
 		{
 			var seoHost = options.Value.SeoBaseUrl;
 			using (var client = new HttpClient())
 			{
-				var seoUrl = $"{seoHost}/v1/{tenant}/{widgetUriName}/{pathAndQuery}";
+				var ub = new UriBuilder($"{options.Value.SeoBaseUrl}/v1/{tenant}/{widgetUriName}/{pathInWidget}");
+				var query = HttpUtility.ParseQueryString(ub.Query);
+				query.Add("baseUrl", baseUrl);
+				ub.Query = query.ToString();
+
 				HttpResponseMessage response;
 				try
 				{
-					response = await client.GetAsync(seoUrl);
+					response = await client.GetAsync(ub.Uri);
 					if (!response.IsSuccessStatusCode)
 					{
 						return new SeoPage { Error = new Error { Code = (int)response.StatusCode, Message = response.ReasonPhrase } };
