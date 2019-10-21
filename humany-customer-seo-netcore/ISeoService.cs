@@ -47,7 +47,7 @@ namespace humany_customer_seo_netcore
 			{
 				var ub = new UriBuilder($"{options.Value.SeoBaseUrl}/v1/{tenant}/{widgetUriName}/{pathInWidget}");
 				var query = HttpUtility.ParseQueryString(ub.Query);
-				query.Add("baseUrl", baseUrl);
+				query.Add("seoBaseUrl", baseUrl);
 				ub.Query = query.ToString();
 
 				HttpResponseMessage response;
