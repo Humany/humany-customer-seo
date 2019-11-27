@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -11,7 +12,7 @@ namespace humany_customer_seo_netcore
 {
 	public interface ISeoService
 	{
-		Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl);
+		Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl, CancellationToken? cancellationToken = null);
 	}
 
 	public class Error
@@ -40,7 +41,7 @@ namespace humany_customer_seo_netcore
 		{
 			this.options = options;
 		}
-		public async Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl)
+		public async Task<SeoPage> Get(string tenant, string widgetUriName, string pathInWidget, string baseUrl, CancellationToken? cancellationToken = null)
 		{
 			var seoHost = options.Value.SeoBaseUrl;
 			using (var client = new HttpClient())
@@ -53,7 +54,7 @@ namespace humany_customer_seo_netcore
 				HttpResponseMessage response;
 				try
 				{
-					response = await client.GetAsync(ub.Uri);
+					response = await client.GetAsync(ub.Uri, cancellationToken == null ? CancellationToken.None : cancellationToken.Value);
 					if (!response.IsSuccessStatusCode)
 					{
 						return new SeoPage { Error = new Error { Code = (int)response.StatusCode, Message = response.ReasonPhrase } };
