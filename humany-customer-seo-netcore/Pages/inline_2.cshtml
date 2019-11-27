@@ -6,10 +6,7 @@
     var widgetConfig = new WidgetConfiguration("seo-customer", "inline-2-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
     var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
 
-    var cts = new System.Threading.CancellationTokenSource();
-    cts.CancelAfter(4000);
-
-    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, HttpContext.Request.Path.Value + HttpContext.Request.QueryString), widgetConfig.BasePath, cts.Token);
+    var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, HttpContext.Request.Path.Value + HttpContext.Request.QueryString), widgetConfig.BasePath, TimeSpan.FromSeconds(4));
     if (seoPage != null)
         ViewData["Title"] = seoPage.PageTitle ?? "N/A";
 }
