@@ -40,9 +40,17 @@
 {
     <link href="//@(domain)/ClientLibraries/Supplementary/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
     @{
+        if (seoPage?.RobotsAllowIndexing == false)
+        {
+            <meta name="robots" content="noindex" />
+        }
         if (!string.IsNullOrEmpty(seoPage?.CssHref))
         {
             <link rel="stylesheet" type="text/css" href="@seoPage?.CssHref" />
+        }
+        if (!string.IsNullOrEmpty(seoPage?.CanonicalUrl))
+        {
+            <link rel="canonical" href="@seoPage.CanonicalUrl" />
         }
     }
 }
