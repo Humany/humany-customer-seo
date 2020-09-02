@@ -4,7 +4,7 @@
 @inject Microsoft.Extensions.Options.IOptions<AppSettings> options
 @{
     ViewData["Title"] = "No result";
-    var widgetConfig = new WidgetConfiguration("seo-customer", "inline-v4", "v4", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
+    var widgetConfig = new WidgetConfiguration("seo-customer", "customer-service", "default", Request.RouteValues.GetValueOrDefault("page", "")?.ToString() ?? "");
     var domain = widgetConfig.GetHumanyTenantDomain(options.Value.HumanyTopDomain);
 
     var seoPage = await seoService.Get(widgetConfig.Tenant, widgetConfig.WidgetUriName, WidgetConfiguration.GetPathInWidget(widgetConfig.BasePath, HttpContext.Request.Path.Value + HttpContext.Request.QueryString), widgetConfig.BasePath, TimeSpan.FromSeconds(4));
@@ -50,7 +50,7 @@
         }
         if (!string.IsNullOrEmpty(seoPage?.CanonicalUrl))
         {
-            <link rel="canonical" href="@seoPage.CanonicalUrl" />
+            <link rel="canonical" href="@($"//{Request.Host}/{Request.Path.Value.Split('/').FirstOrDefault(o => o.Length > 0)}/{System.Text.RegularExpressions.Regex.Replace(seoPage.CanonicalUrl, "^\\/?" + widgetConfig.WidgetUriName + "\\/?", "")}")" />
         }
     }
 }
