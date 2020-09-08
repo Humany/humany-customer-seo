@@ -44,9 +44,13 @@
         {
             <meta name="robots" content="noindex" />
         }
+        if (!string.IsNullOrEmpty(seoPage?.PageDescription))
+        {
+            <meta name="description" href="@seoPage.PageDescription" />
+        }
         if (!string.IsNullOrEmpty(seoPage?.CssHref))
         {
-            <link rel="stylesheet" type="text/css" href="@seoPage?.CssHref" />
+            <link rel="stylesheet" type="text/css" href="@seoPage.CssHref" />
         }
         if (!string.IsNullOrEmpty(seoPage?.CanonicalUrl))
         {
