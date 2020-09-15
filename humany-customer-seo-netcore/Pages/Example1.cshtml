@@ -54,7 +54,7 @@
         }
         if (!string.IsNullOrEmpty(seoPage?.CanonicalUrl))
         {
-            <link rel="canonical" href="@($"//{Request.Host}/{Request.Path.Value.Split('/').FirstOrDefault(o => o.Length > 0)}/{System.Text.RegularExpressions.Regex.Replace(seoPage.CanonicalUrl, "^\\/?" + widgetConfig.WidgetUriName + "\\/?", "")}")" />
+            <link rel="canonical" href="@($"{Request.Scheme}://{Request.Host}/{Request.Path.Value.Split('/').FirstOrDefault(o => o.Length > 0)}/{System.Text.RegularExpressions.Regex.Replace(seoPage.CanonicalUrl, "^\\/?" + widgetConfig.WidgetUriName + "\\/?", "")}")" />
         }
     }
 }
