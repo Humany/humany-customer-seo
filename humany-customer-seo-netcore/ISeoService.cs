@@ -24,13 +24,27 @@ namespace humany_customer_seo_netcore
 	public class SeoPage
 	{
 		public string Html { get; set; } = string.Empty;
-		public string CssHref { get; set; } = string.Empty;
-		public string PageTitle { get; set; } = string.Empty;
-		public string CanonicalUrl { get; set; } = string.Empty;
-		public string ContentRenderedOn { get; set; } = string.Empty;
-		public string ContentModifiedOn { get; set; } = string.Empty;
 
-		public Error Error { get; set; }
+		public Dictionary<string, string> Headers = new Dictionary<string, string>();
+
+		// From DeliveryController.cs:
+		public const string CanonicalUrlHeaderName = "HumanyCanonicalUrl";
+		public const string ContentRenderedOnHeaderName = "HumanyContentRenderedOn";
+		public const string ContentModifiedOnHeaderName = "HumanyContentModifiedOn";
+		public const string CssHrefHeaderName = "HumanyCssHref";
+		public const string RobotsAllowIndexingHeaderName = "HumanyRobotsAllowIndexing";
+		public const string PageTitleHeaderName = "HumanyPageTitle";
+		public const string PageDescriptionHeaderName = "HumanyPageDescription";
+		public const string GuideModifiedOnHeaderName = "HumanyGuideModifiedOn";
+
+		public string CssHref => Headers.GetValueOrDefault(CssHrefHeaderName, "") ?? "";
+		public string PageTitle => Headers.GetValueOrDefault(PageTitleHeaderName, "") ?? "";
+		public string CanonicalUrl => Headers.GetValueOrDefault(CanonicalUrlHeaderName, "") ?? "";
+		public string ContentRenderedOn => Headers.GetValueOrDefault(ContentRenderedOnHeaderName, "") ?? "";
+		public string ContentModifiedOn => Headers.GetValueOrDefault(ContentModifiedOnHeaderName, "") ?? "";
+		public bool RobotsAllowIndexing => (Headers.GetValueOrDefault(RobotsAllowIndexingHeaderName, "") ?? "").ToLower() != "false";
+		public string PageDescription => Headers.GetValueOrDefault(PageDescriptionHeaderName, "") ?? "";
+		public string GuideModifiedOn => Headers.GetValueOrDefault(GuideModifiedOnHeaderName, "") ?? ""; public Error Error { get; set; }
 	}
 
 	public class SeoService : ISeoService
@@ -46,7 +60,7 @@ namespace humany_customer_seo_netcore
 			var seoHost = options.Value.SeoBaseUrl;
 			using (var client = new HttpClient())
 			{
-				var ub = new UriBuilder($"{options.Value.SeoBaseUrl}/v1/{tenant}/{widgetUriName}/{pathInWidget}");
+				var ub = new UriBuilder($"{options.Value.SeoBaseUrl}/v2/{tenant}/{widgetUriName}/{pathInWidget}");
 				var query = HttpUtility.ParseQueryString(ub.Query);
 				query.Add("seoBaseUrl", baseUrl);
 				ub.Query = query.ToString();
@@ -74,11 +88,7 @@ namespace humany_customer_seo_netcore
 				var result = new SeoPage
 				{
 					Html = content,
-					CssHref = headers.GetValueOrDefault("HumanyCssHref", "") ?? "",
-					CanonicalUrl = headers.GetValueOrDefault("HumanyCanonicalUrl", "") ?? "",
-					ContentModifiedOn = headers.GetValueOrDefault("HumanyContentModifiedOn", "") ?? "",
-					ContentRenderedOn = headers.GetValueOrDefault("HumanyContentRenderedOn", "") ?? "",
-					PageTitle = headers.GetValueOrDefault("HumanyPageTitle", "") ?? "",
+					Headers = headers
 				};
 
 				return result;
